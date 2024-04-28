@@ -19,7 +19,6 @@ class CXRDataset(Dataset):
   def __init__(self, archive_file):
     self.archive_file = archive_file
     self.image_to_label = {}
-    self.inner_datasets = {}
     self.extract_data()
     self.items = list(self.image_to_label.items())
 
@@ -83,9 +82,6 @@ class COVID19_Radiography(CXRDataset):
       
       for index, row in metadata.iterrows():
         dataset_id = f"{category}_{row['URL']}"
-        if dataset_id not in self.inner_datasets:
-          # Encountered new dataset
-          self.inner_datasets[dataset_id] = []
 
         file_path = os.path.join(image_dir, f"{row['FILE NAME']}.png")
         if file_operations.is_valid_image_file(file_path):
@@ -97,7 +93,6 @@ class COVID19_Radiography(CXRDataset):
               img = Image.open(io.BytesIO(img_data))
               img.verify()
 
-              self.inner_datasets[dataset_id].append(file_path)
               self.image_to_label[file_path] = CXRLabel.NORMAL if category in self.normal else CXRLabel.ABNORMAL
 
             except (IOError, SyntaxError) as e:
