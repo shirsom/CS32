@@ -1,6 +1,5 @@
 
-MODELS_DIR_NAME = "models"
-MODEL_PATH = "models.pt"
+MODEL_PATH = "models/models.pt"
 RESULTS_PATH = "models/results.txt"
 
 VALID_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']
