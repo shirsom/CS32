@@ -16,15 +16,15 @@ class CXRLabel(Enum):
     ABNORMAL = 1
 
 class CXRDataset(Dataset):
-  def __init__(self, archive_file, config=None):
+  def __init__(self, archive_file):
     self.archive_file = archive_file
     self.image_to_label = {}
     self.inner_datasets = {}
-    self.extract_data(config)
+    self.extract_data()
     self.items = list(self.image_to_label.items())
 
   @abstractmethod
-  def extract_data(self, **kwargs):
+  def extract_data(self):
     raise NotImplementedError
 
   def __getitem__(self, idx):
@@ -65,35 +65,10 @@ class COVID19_Radiography(CXRDataset):
       └── README.md.txt
     """
 
-  class Datasets(Enum):
-    NORMAL_DS1 = 1
-    NORMAL_DS2 = 2
-    COVID_DS3 = 3
-    COVID_DS4 = 4
-    COVID_DS5 = 5
-    COVID_DS6 = 6
-    COVID_DS7 = 7
-    COVID_DS8 = 8
-    LO_DS1 = 9
-    VP_DS2 = 10
+  def __init__(self):
+    super().__init__("datasets/COVID-19_Radiography.zip")
 
-  DATASET_TO_INDEX = {
-    'Normal_https://www.kaggle.com/c/rsna-pneumonia-detection-challenge/data': Datasets.NORMAL_DS1,
-    'Normal_https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia': Datasets.NORMAL_DS2,
-    'COVID_https://sirm.org/category/senza-categoria/covid-19/': Datasets.COVID_DS3,
-    'COVID_https://github.com/ml-workgroup/covid-19-image-repository/tree/master/png': Datasets.COVID_DS4,
-    'COVID_https://eurorad.org': Datasets.COVID_DS5,
-    'COVID_https://github.com/armiro/COVID-CXNet' : Datasets.COVID_DS6,
-    'COVID_https://github.com/ieee8023/covid-chestxray-dataset': Datasets.COVID_DS7,
-    'COVID_https://bimcv.cipf.es/bimcv-projects/bimcv-covid19/#1590858128006-9e640421-6711': Datasets.COVID_DS8,
-    'Lung_Opacity_https://www.kaggle.com/c/rsna-pneumonia-detection-challenge/data': Datasets.LO_DS1,
-    'Viral Pneumonia_https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia': Datasets.VP_DS2
-  }
-
-  def __init__(self, config=None):
-    super().__init__("datasets/COVID-19_Radiography.zip", config)
-
-  def extract_data(self, config):
+  def extract_data(self):
     self.normal = ["Normal"]
     self.abnormal = ["COVID", "Lung_Opacity", "Viral Pneumonia"]
     images_directories = []
@@ -123,8 +98,7 @@ class COVID19_Radiography(CXRDataset):
               img.verify()
 
               self.inner_datasets[dataset_id].append(file_path)
-              if not config or self.DATASET_TO_INDEX[dataset_id] in config:
-                self.image_to_label[file_path] = CXRLabel.NORMAL if category in self.normal else CXRLabel.ABNORMAL
+              self.image_to_label[file_path] = CXRLabel.NORMAL if category in self.normal else CXRLabel.ABNORMAL
 
             except (IOError, SyntaxError) as e:
               logging.info(f"Invalid image file {filename}: {e}, skipping..")
