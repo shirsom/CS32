@@ -46,7 +46,6 @@ def train_model(model_path=MODEL_PATH):
     t = TrainAndTest(model, datasets, model_path, lr=BASE_LR)
 
     report = t.train()
-    import pdb; pdb.set_trace()
     return model
 
 
